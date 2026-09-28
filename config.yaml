@@ -1,0 +1,79 @@
+# Personal Social Media Agent: non-secret settings. Edit freely.
+
+profile:
+  role: "Software developer working with Node.js and AI agents"
+  tone: "friendly, practical, opinionated but humble; short paragraphs; no buzzword soup"
+
+# Items must mention at least one of these (case-insensitive, whole-word match)
+stack_keywords:
+  - node
+  - nodejs
+  - node.js
+  - javascript
+  - typescript
+  - express
+  - nestjs
+  - bun
+  - deno
+  - npm
+  - ai agent
+  - ai agents
+  - agentic
+  - multi-agent
+  - llm
+  - llms
+  - langchain
+  - langgraph
+  - mcp
+  - model context protocol
+  - rag
+  - ollama
+  - embeddings
+  - vector database
+  - openai
+  - anthropic
+  - claude
+  - gemini
+  - llama
+  - qwen
+
+sources:
+  hackernews:
+    enabled: true
+    min_points: 40
+    lookback_hours: 48
+    max_items: 100
+  reddit:
+    enabled: true
+    subreddits: [node, javascript, typescript, LocalLLaMA, AI_Agents, LangChain]
+    time_filter: day      # hour | day | week
+    per_subreddit: 25
+  github:
+    enabled: true
+    # repos created in the last N days, sorted by stars
+    lookback_days: 7
+    queries:
+      - "topic:ai-agents"
+      - "topic:llm"
+      - "topic:mcp"
+      - "topic:nodejs"
+    per_query: 15
+  rss:
+    enabled: true
+    lookback_hours: 72
+    feeds:
+      - https://nodejs.org/en/feed/blog.xml
+      - https://huggingface.co/blog/feed.xml
+      - https://github.blog/feed/
+      - https://dev.to/feed/tag/node
+      - https://dev.to/feed/tag/ai
+
+ranking:
+  top_n: 12                 # items sent to the LLM
+  avoid_repeat_days: 14     # skip URLs used in posts during this window
+
+post:
+  min_words: 80
+  max_words: 230
+  hashtags: 3
+  max_attempts: 3

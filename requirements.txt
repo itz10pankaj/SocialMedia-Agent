@@ -1,0 +1,9 @@
+fastapi>=0.115
+uvicorn>=0.32
+httpx>=0.28
+feedparser>=6.0
+sqlmodel>=0.0.22
+pydantic-settings>=2.6
+pyyaml>=6.0
+pymysql>=1.1
+cryptography>=43   # needed by pymysql for MySQL 8's default login method
