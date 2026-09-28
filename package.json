@@ -1,0 +1,15 @@
+{
+  "name": "personal-social-agent",
+  "private": true,
+  "description": "Shortcuts for the Python project (run with npm run <name>)",
+  "scripts": {
+    "start": ".venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000",
+    "dev": ".venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000 --reload",
+    "draft": ".venv\\Scripts\\python.exe -m app.orchestrator --force",
+    "install:py": ".venv\\Scripts\\python.exe -m pip install -r requirements.txt",
+    "ollama:status": "\"%LOCALAPPDATA%\\Programs\\Ollama\\ollama.exe\" ps",
+    "ollama:unload": "\"%LOCALAPPDATA%\\Programs\\Ollama\\ollama.exe\" stop qwen2.5:3b",
+    "ollama:stop": "taskkill /IM \"ollama app.exe\" /F & taskkill /IM ollama.exe /F",
+    "ollama:start": "start \"\" \"%LOCALAPPDATA%\\Programs\\Ollama\\ollama app.exe\""
+  }
+}
