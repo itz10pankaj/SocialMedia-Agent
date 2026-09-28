@@ -7,7 +7,7 @@
     "dev": ".venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000 --reload",
     "draft": ".venv\\Scripts\\python.exe -m app.orchestrator --force",
     "install:py": ".venv\\Scripts\\python.exe -m pip install -r requirements.txt",
-    "ollama:status": "\"%LOCALAPPDATA%\\Programs\\Ollama\\ollama.exe\" ps",
+    "ollama:status": "(curl -s -m 3 -o NUL http://localhost:11434/api/version && echo Ollama server: RUNNING || echo Ollama server: NOT RUNNING - use npm run ollama:start) & echo. & echo Models loaded in RAM (empty = none loaded; loads automatically on first use): & \"%LOCALAPPDATA%\\Programs\\Ollama\\ollama.exe\" ps",
     "ollama:unload": "\"%LOCALAPPDATA%\\Programs\\Ollama\\ollama.exe\" stop qwen2.5:3b",
     "ollama:stop": "taskkill /IM \"ollama app.exe\" /F & taskkill /IM ollama.exe /F",
     "ollama:start": "start \"\" \"%LOCALAPPDATA%\\Programs\\Ollama\\ollama app.exe\""
