@@ -8,6 +8,17 @@ from app.models import TrendItem
 
 MAX_PER_SOURCE = 4  # keep the LLM's input diverse
 QUESTION_PENALTY = 0.2
+RETROSPECTIVE_PENALTY = 0.35
+
+_RETRO_PATTERN = re.compile(
+    r"\b(?:released|launched|announced|started)\s+\d+\s+(?:years?|months?)\s+ago\b|"
+    r"\b(?:anniversary|retrospective|looking back)\b",
+    re.IGNORECASE,
+)
+_QUESTION_START = re.compile(
+    r"^(how (to|do|can|would)|why (is|do|does)|anyone|is it|what is)\b",
+    re.IGNORECASE,
+)
 
 
 def _keyword_patterns(keywords: list[str]) -> list[tuple[str, re.Pattern]]:
@@ -71,8 +82,10 @@ def rank(items: list[TrendItem], keywords: list[str], top_n: int, exclude_urls: 
             freshness = 0.3
         relevance = min(len(item.matched_keywords), 3) / 3
         score = 0.5 * popularity + 0.3 * freshness + 0.2 * relevance
-        if item.title.rstrip().endswith("?"):
+        if item.title.rstrip().endswith("?") or _QUESTION_START.search(item.title):
             score -= QUESTION_PENALTY  # "how do you...?" threads make weaker posts than actual news
+        if _RETRO_PATTERN.search(item.title):
+            score -= RETROSPECTIVE_PENALTY  # retrospective / anniversary threads rank lower than fresh news
         item.rank_score = round(score, 4)
 
     # 3. best first, capped per source family

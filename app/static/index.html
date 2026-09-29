@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Social Media Agent | Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="navbar" id="navbar">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <h1 class="brand-title">Social Agent</h1>
+      <span class="brand-badge">Local AI</span>
+    </div>
+
+    <div class="nav-actions">
+      <div class="status-pill" id="ollama-status">
+        <span class="status-dot" id="ollama-dot"></span>
+        <span id="ollama-text">Checking Ollama...</span>
+      </div>
+      <div class="status-pill" id="db-status">
+        <span class="status-dot" id="db-dot"></span>
+        <span>MySQL Connected</span>
+      </div>
+      <button class="btn btn-primary" id="btn-run-pipeline">
+        <span>⚡ Run Pipeline Now</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Grid Layout -->
+  <main class="container">
+    
+    <!-- Left Column: Draft Studio -->
+    <section class="studio-column">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span>📝 Latest LinkedIn Draft</span>
+        </h2>
+        <div class="post-badges" id="draft-badges">
+          <span class="badge badge-stats" id="badge-draft-id">Draft #--</span>
+          <span class="badge badge-pending" id="badge-status">PENDING</span>
+          <span class="badge badge-style" id="badge-style">ANALYSIS</span>
+          <span class="badge badge-stats" id="badge-word-count">0 words</span>
+        </div>
+      </div>
+
+      <!-- LinkedIn Post Simulator Card -->
+      <article class="linkedin-card" id="draft-card">
+        <div class="post-header">
+          <div class="author-info">
+            <div class="avatar" id="author-avatar">ME</div>
+            <div class="author-details">
+              <h4 id="author-name">Software Engineer & AI Builder</h4>
+              <p id="author-role">Node.js · TypeScript · AI Agents</p>
+              <span class="post-meta-tag" id="post-timestamp">Generated today · 🌐</span>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-toggle-edit">
+            ✏️ Edit Draft
+          </button>
+        </div>
+
+        <!-- Topic & Angle Context Banner -->
+        <div class="topic-banner" id="topic-banner">
+          <div class="topic-title" id="draft-topic">Loading topic...</div>
+          <div class="topic-angle" id="draft-angle">Loading angle...</div>
+        </div>
+
+        <!-- Post Content View / Editor -->
+        <div class="post-content" id="post-view-body">
+          Loading draft content...
+        </div>
+
+        <textarea 
+          class="post-editor-textarea" 
+          id="post-edit-body" 
+          style="display: none;" 
+          placeholder="Edit your post content here..."
+        ></textarea>
+
+        <!-- Sources Section -->
+        <div class="post-sources" id="post-sources-container">
+          <span class="source-label">Inspired by Source:</span>
+          <div id="sources-list">
+            <!-- Sources dynamically injected here -->
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="card-actions">
+          <div class="actions-left">
+            <button class="btn btn-success" id="btn-approve">
+              ✓ Approve Post
+            </button>
+            <button class="btn btn-secondary" id="btn-copy">
+              📋 Copy Post
+            </button>
+          </div>
+          <div class="actions-right">
+            <button class="btn btn-primary" id="btn-share-linkedin">
+              🚀 Post to LinkedIn
+            </button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Right Column: Sidebar Feed & History -->
+    <aside class="sidebar-column">
+      
+      <!-- Trending Feed Card -->
+      <div class="glass-card">
+        <div class="section-header">
+          <h3 class="section-title">
+            <span>🔥 Today's Top Trends</span>
+          </h3>
+          <span class="badge badge-stats" id="trends-count">0 items</span>
+        </div>
+        <div class="trends-list" id="trends-container">
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Loading trend intelligence...</p>
+        </div>
+      </div>
+
+      <!-- Recent Drafts Card -->
+      <div class="glass-card">
+        <div class="section-header">
+          <h3 class="section-title">
+            <span>📜 Recent Drafts</span>
+          </h3>
+        </div>
+        <div class="history-list" id="history-container">
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Loading drafts history...</p>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Fullscreen Loading Overlay -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Running Pipeline...</div>
+    <div class="loading-subtext">Collecting from HN, Reddit, GitHub, RSS → Ranking → Drafting with Ollama</div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

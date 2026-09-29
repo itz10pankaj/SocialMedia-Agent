@@ -69,11 +69,11 @@ sources:
       - https://dev.to/feed/tag/ai
 
 ranking:
-  top_n: 12                 # items sent to the LLM
+  top_n: 8                  # items sent to the LLM (8 is optimal for 3B models)
   avoid_repeat_days: 14     # skip URLs used in posts during this window
 
 post:
-  min_words: 80
-  max_words: 230
+  min_words: 150
+  max_words: 250
   hashtags: 3
   max_attempts: 3

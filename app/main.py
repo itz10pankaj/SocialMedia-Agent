@@ -2,14 +2,17 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import httpx
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 from sqlmodel import select
 
 from app import llm
 from app.config import get_settings
-from app.db import Draft, FetchedItem, Run, init_db, session
+from app.db import Draft, DraftStatus, FetchedItem, Run, init_db, session
 from app.orchestrator import collect_and_rank, run_pipeline
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -63,6 +66,11 @@ async def trends():
     return {"collected": len(items), "sources": status, "ranked": ranked}
 
 
+class DraftUpdate(BaseModel):
+    text: str | None = None
+    status: DraftStatus | None = None
+
+
 @app.get("/drafts")
 def list_drafts(limit: int = 20):
     with session() as s:
@@ -74,6 +82,23 @@ def get_draft(draft_id: int):
     with session() as s:
         if not (draft := s.get(Draft, draft_id)):
             raise HTTPException(404, "draft not found")
+        return draft
+
+
+@app.patch("/drafts/{draft_id}")
+def update_draft(draft_id: int, payload: DraftUpdate):
+    with session() as s:
+        draft = s.get(Draft, draft_id)
+        if not draft:
+            raise HTTPException(404, "draft not found")
+        if payload.text is not None:
+            draft.text = payload.text
+            draft.word_count = len(payload.text.split())
+        if payload.status is not None:
+            draft.status = payload.status
+        s.add(draft)
+        s.commit()
+        s.refresh(draft)
         return draft
 
 
@@ -91,3 +116,8 @@ def run_items(run_id: int, status: str | None = None):
         if status:
             q = q.where(FetchedItem.status == status)
         return s.exec(q.order_by(FetchedItem.rank_position.is_(None), FetchedItem.rank_position, FetchedItem.rank_score.desc())).all()
+
+
+static_dir = Path(__file__).resolve().parent / "static"
+static_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="static")
