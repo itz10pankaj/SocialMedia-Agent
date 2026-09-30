@@ -25,6 +25,12 @@ class Settings(BaseSettings):
     gmail_app_password: str = ""
     notify_email: str = "pgarg9355@gmail.com"
 
+    # LinkedIn REST API
+    linkedin_client_id: str = ""
+    linkedin_client_secret: str = ""
+    linkedin_access_token: str = ""
+    linkedin_person_urn: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:

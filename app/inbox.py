@@ -179,6 +179,18 @@ def check_email_replies() -> list[dict]:
                     s.add(draft)
                     s.commit()
                     s.refresh(draft)
+
+                    # Auto-publish to LinkedIn if approved and token is configured
+                    if draft.status == DraftStatus.APPROVED and get_settings().linkedin_access_token:
+                        try:
+                            from app.linkedin import publish_draft
+                            pub_res = publish_draft(draft.id)
+                            if pub_res.get("success"):
+                                action += "_and_posted_to_linkedin"
+                                log.info("Draft #%d auto-published to LinkedIn! Post ID: %s", draft_id, pub_res.get("linkedin_post_id"))
+                        except Exception as pub_err:
+                            log.exception("Failed to auto-publish Draft #%d to LinkedIn: %r", draft_id, pub_err)
+
                     results.append({"draft_id": draft_id, "action": action, "status": draft.status})
                     # Mark email as read
                     mail.store(msg_id, "+FLAGS", "\\Seen")

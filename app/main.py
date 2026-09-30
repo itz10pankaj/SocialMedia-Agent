@@ -135,6 +135,41 @@ def email_draft(draft_id: int, to_email: str | None = None):
         return {"sent": True, "draft_id": draft.id, "recipient": to_email or get_settings().notify_email or get_settings().gmail_address}
 
 
+@app.post("/drafts/{draft_id}/publish")
+def publish_to_linkedin_endpoint(draft_id: int):
+    """Publish a draft directly to LinkedIn personal profile."""
+    from app.linkedin import publish_draft
+    try:
+        result = publish_draft(draft_id)
+        return result
+    except ValueError as e:
+        raise HTTPException(400, str(e))
+    except Exception as e:
+        log.exception("LinkedIn publishing failed for Draft #%d: %r", draft_id, e)
+        raise HTTPException(500, f"LinkedIn publish failed: {e}")
+
+
+@app.get("/linkedin/status")
+def linkedin_status():
+    """Check LinkedIn integration status and profile connection."""
+    from app.linkedin import get_profile
+    settings = get_settings()
+    configured = bool(settings.linkedin_access_token)
+    if not configured:
+        return {"configured": False, "message": "LINKEDIN_ACCESS_TOKEN not configured in .env"}
+    try:
+        profile = get_profile()
+        return {
+            "configured": True,
+            "connected": True,
+            "name": profile.get("name"),
+            "email": profile.get("email"),
+            "person_urn": profile.get("person_urn"),
+        }
+    except Exception as e:
+        return {"configured": True, "connected": False, "error": str(e)}
+
+
 @app.get("/runs")
 def list_runs(limit: int = 20):
     with session() as s:

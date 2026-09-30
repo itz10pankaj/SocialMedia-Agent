@@ -317,13 +317,39 @@ async function sendEmail() {
   }
 }
 
-// Open LinkedIn Share Intent
-function shareToLinkedIn() {
-  if (!currentDraft || !currentDraft.text) return;
-  const encodedText = encodeURIComponent(currentDraft.text);
-  const shareUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodedText}`;
-  window.open(shareUrl, '_blank', 'noopener,noreferrer');
-  showToast('Opening LinkedIn feed...');
+// Post directly to LinkedIn via REST API
+async function shareToLinkedIn() {
+  if (!currentDraft || !currentDraft.text) {
+    showToast('No active draft selected to post!', 'info');
+    return;
+  }
+  
+  btnShareLinkedIn.disabled = true;
+  btnShareLinkedIn.textContent = '🚀 Publishing to LinkedIn...';
+  
+  try {
+    const res = await fetch(`/drafts/${currentDraft.id}/publish`, { method: 'POST' });
+    const data = await res.json();
+    
+    if (res.ok && data.success) {
+      showToast(`🎉 Successfully published Draft #${currentDraft.id} to LinkedIn!`);
+      btnShareLinkedIn.textContent = '✓ Posted on LinkedIn!';
+      await loadDrafts(currentDraft.id);
+      return;
+    } else {
+      const errMsg = data.detail || 'Failed to publish to LinkedIn.';
+      console.error('LinkedIn API error:', data);
+      showToast(`❌ Error: ${errMsg}`, 'info');
+    }
+  } catch (err) {
+    console.error('Direct publish error:', err);
+    showToast(`❌ Connection error: ${err.message}`, 'info');
+  } finally {
+    btnShareLinkedIn.disabled = false;
+    if (btnShareLinkedIn.textContent !== '✓ Posted on LinkedIn!') {
+      btnShareLinkedIn.textContent = '🚀 Post to LinkedIn';
+    }
+  }
 }
 
 // Run Pipeline Now
