@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     # MySQL, e.g. mysql+pymysql://user:<password>@localhost:3306/social_agent?charset=utf8mb4
     database_url: str
 
+    # Gmail SMTP
+    gmail_address: str = ""
+    gmail_app_password: str = ""
+    notify_email: str = "pgarg9355@gmail.com"
+
 
 @lru_cache
 def get_settings() -> Settings:

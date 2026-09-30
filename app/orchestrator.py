@@ -14,6 +14,7 @@ from app.db import Draft, FetchedItem, Run, draft_created_today, init_db, recent
 from app.models import TrendItem
 from app.ranking import rank
 from app.writer import write_post
+from app.mailer import send_draft_email
 
 log = logging.getLogger(__name__)
 _lock = asyncio.Lock()
@@ -102,9 +103,10 @@ async def run_pipeline(force: bool = False) -> Run:
                 s.commit()
                 s.refresh(draft)
             _mark_chosen(run.id, [c.url for c in result.chosen])
-            # TODO step 5: email the draft for approval
+            email_sent = send_draft_email(draft)
+            email_note = " (email sent)" if email_sent else ""
             run.status, run.draft_id = "OK", draft.id
-            run.message = f"draft #{draft.id}: {result.topic}"
+            run.message = f"draft #{draft.id}: {result.topic}{email_note}"
         except Exception as e:
             log.exception("pipeline failed")
             run.status, run.message = "FAILED", repr(e)[:500]

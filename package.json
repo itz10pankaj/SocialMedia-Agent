@@ -3,8 +3,9 @@
   "private": true,
   "description": "Shortcuts for the Python project (run with npm run <name>)",
   "scripts": {
-    "start": ".venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000",
-    "dev": ".venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000 --reload",
+    "start": ".venv\\Scripts\\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000",
+    "dev": ".venv\\Scripts\\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
+    "tunnel": "npx -y localtunnel --port 8000",
     "draft": ".venv\\Scripts\\python.exe -m app.orchestrator --force",
     "install:py": ".venv\\Scripts\\python.exe -m pip install -r requirements.txt",
     "ollama:status": "(curl -s -m 3 -o NUL http://localhost:11434/api/version && echo Ollama server: RUNNING || echo Ollama server: NOT RUNNING - use npm run ollama:start) & echo. & echo Models loaded in RAM (empty = none loaded; loads automatically on first use): & \"%LOCALAPPDATA%\\Programs\\Ollama\\ollama.exe\" ps",

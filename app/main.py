@@ -26,15 +26,35 @@ def _background(coro) -> None:
     task.add_done_callback(_tasks.discard)
 
 
+async def _email_poll_loop():
+    """Poll Gmail inbox for replies every 30 seconds in background."""
+    while True:
+        try:
+            from app.inbox import check_email_replies
+            await asyncio.to_thread(check_email_replies)
+        except Exception as e:
+            log.debug("email poll error: %r", e)
+        await asyncio.sleep(30)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     init_db()
     if get_settings().run_on_startup:
         _background(run_pipeline())
+    _background(_email_poll_loop())
     yield
 
 
 app = FastAPI(title="Personal Social Media Agent", lifespan=lifespan)
+
+
+@app.post("/check-replies")
+async def trigger_check_replies():
+    """Manually check Gmail inbox for replies right now."""
+    from app.inbox import check_email_replies
+    results = await asyncio.to_thread(check_email_replies)
+    return {"checked": True, "actions": results}
 
 
 @app.get("/health")
@@ -100,6 +120,19 @@ def update_draft(draft_id: int, payload: DraftUpdate):
         s.commit()
         s.refresh(draft)
         return draft
+
+
+@app.post("/drafts/{draft_id}/send-email")
+def email_draft(draft_id: int, to_email: str | None = None):
+    with session() as s:
+        draft = s.get(Draft, draft_id)
+        if not draft:
+            raise HTTPException(404, "draft not found")
+        from app.mailer import send_draft_email
+        success = send_draft_email(draft, to_email=to_email)
+        if not success:
+            raise HTTPException(500, "Failed to send email. Check GMAIL_ADDRESS and GMAIL_APP_PASSWORD in .env")
+        return {"sent": True, "draft_id": draft.id, "recipient": to_email or get_settings().notify_email or get_settings().gmail_address}
 
 
 @app.get("/runs")

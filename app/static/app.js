@@ -23,6 +23,7 @@ const postEditBody = document.getElementById('post-edit-body');
 const btnToggleEdit = document.getElementById('btn-toggle-edit');
 const btnApprove = document.getElementById('btn-approve');
 const btnCopy = document.getElementById('btn-copy');
+const btnEmail = document.getElementById('btn-email');
 const btnShareLinkedIn = document.getElementById('btn-share-linkedin');
 const sourcesList = document.getElementById('sources-list');
 
@@ -295,6 +296,27 @@ async function copyPost() {
   }
 }
 
+// Send Draft to Email via Gmail SMTP
+async function sendEmail() {
+  if (!currentDraft) return;
+  btnEmail.disabled = true;
+  btnEmail.textContent = '⏳ Sending...';
+  try {
+    const res = await fetch(`/drafts/${currentDraft.id}/send-email`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok && data.sent) {
+      showToast(`Draft #${currentDraft.id} emailed to ${data.recipient}!`);
+    } else {
+      showToast('Failed to send email. Check credentials.', 'info');
+    }
+  } catch (err) {
+    showToast('Failed to send email', 'info');
+  } finally {
+    btnEmail.disabled = false;
+    btnEmail.textContent = '📧 Email Me';
+  }
+}
+
 // Open LinkedIn Share Intent
 function shareToLinkedIn() {
   if (!currentDraft || !currentDraft.text) return;
@@ -330,6 +352,7 @@ async function runPipeline() {
 btnToggleEdit.addEventListener('click', () => toggleEdit(isEditing));
 btnApprove.addEventListener('click', approveDraft);
 btnCopy.addEventListener('click', copyPost);
+btnEmail.addEventListener('click', sendEmail);
 btnShareLinkedIn.addEventListener('click', shareToLinkedIn);
 btnRunPipeline.addEventListener('click', runPipeline);
 

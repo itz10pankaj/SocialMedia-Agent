@@ -287,3 +287,21 @@ async def write_post(items: list[TrendItem], config: dict) -> DraftResult:
         chosen=chosen,
         sources=[{"title": c.title, "url": c.url, "source": c.source} for c in chosen],
     )
+
+
+async def revise_post(original_text: str, user_instruction: str, topic: str = "") -> str:
+    """Use Ollama to rewrite or tweak a post based on conversational user instructions from mobile email."""
+    system = (
+        "You are an expert LinkedIn ghostwriter. "
+        "A user reviewed the draft post and asked for revisions. "
+        "Rewrite the post applying their requested changes while preserving high engagement, clear paragraphs, and relevant hashtags.\n"
+        "Output ONLY the revised LinkedIn post, without any introductory or concluding meta-commentary."
+    )
+    user = (
+        f"Topic: {topic}\n\n"
+        f"Original Post:\n{original_text}\n\n"
+        f"User's Revision Request:\n{user_instruction}\n\n"
+        "Revised Post:"
+    )
+    raw, _ = await llm.chat([{"role": "system", "content": system}, {"role": "user", "content": user}])
+    return _clean(raw)
