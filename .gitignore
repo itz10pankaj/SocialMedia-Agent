@@ -4,4 +4,4 @@ __pycache__/
 .env
 logs/
 docs/
-README.md
+.auto_runner.lock
