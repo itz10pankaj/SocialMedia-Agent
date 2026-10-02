@@ -95,7 +95,47 @@ def draft_created_today(s: Session) -> Draft | None:
     # "Today" is local time: that's what matters for a once-per-day post.
     local_midnight = datetime.now().astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
     since = local_midnight.astimezone(timezone.utc)
-    return s.exec(select(Draft).where(Draft.created_at >= since)).first()
+    return s.exec(select(Draft).where(Draft.created_at >= since).order_by(Draft.id.desc())).first()
+
+
+def active_draft_today(s: Session) -> Draft | None:
+    """Returns today's active draft that is still pending or approved (not rejected or posted)."""
+    local_midnight = datetime.now().astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
+    since = local_midnight.astimezone(timezone.utc)
+    return s.exec(
+        select(Draft)
+        .where(
+            Draft.created_at >= since,
+            Draft.status.in_([DraftStatus.PENDING, DraftStatus.APPROVED]),
+        )
+        .order_by(Draft.id.desc())
+    ).first()
+
+
+def rejected_drafts_today(s: Session) -> list[Draft]:
+    """Returns all drafts rejected today."""
+    local_midnight = datetime.now().astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
+    since = local_midnight.astimezone(timezone.utc)
+    return s.exec(
+        select(Draft)
+        .where(
+            Draft.created_at >= since,
+            Draft.status == DraftStatus.REJECTED,
+        )
+        .order_by(Draft.id.desc())
+    ).all()
+
+
+def post_published_today(s: Session) -> Draft | None:
+    """Returns today's draft if it has already been posted to LinkedIn."""
+    local_midnight = datetime.now().astimezone().replace(hour=0, minute=0, second=0, microsecond=0)
+    since = local_midnight.astimezone(timezone.utc)
+    return s.exec(
+        select(Draft).where(
+            Draft.status == DraftStatus.POSTED,
+            (Draft.posted_at >= since) | (Draft.created_at >= since),
+        )
+    ).first()
 
 
 def recently_used_urls(s: Session, days: int) -> set[str]:
